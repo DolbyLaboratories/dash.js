@@ -295,7 +295,7 @@ function CapabilitiesFilter() {
 
         const customCapabilitiesFilters = customParametersModel.getCustomCapabilitiesFilters();
         if (!customCapabilitiesFilters || customCapabilitiesFilters.length === 0) {
-            return;
+            return Promise.resolve(true);
         }
 
         const promises = [];
