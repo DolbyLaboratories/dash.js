@@ -280,7 +280,7 @@ function CapabilitiesFilter() {
             Promise.all(promises)
                 .then((supported) => {
                     as.Representation = as.Representation.filter((rep, i) => {
-                        return supported[i];
+                        return supported[i].every( (s)=>{return s});
                     });
                     resolve();
                 })
@@ -292,19 +292,20 @@ function CapabilitiesFilter() {
     }
 
     function _applyCustomFiltersRepresentation(rep) {
-
-        const customCapabilitiesFilters = customParametersModel.getCustomCapabilitiesFilters();
-        if (!customCapabilitiesFilters || customCapabilitiesFilters.length === 0) {
-            return Promise.resolve(true);
-        }
-
         const promises = [];
-        customCapabilitiesFilters.forEach(customFilter => {
-            if (customFilter instanceof Promise)
-                promises.push(customFilter(rep))
-            else
-                promises.push(new Promise(resolve => resolve(customFilter(rep))))
-        });
+        const customCapabilitiesFilters = customParametersModel.getCustomCapabilitiesFilters();
+
+        if (!customCapabilitiesFilters || customCapabilitiesFilters.length === 0) {
+            promises.push(Promise.resolve(true));
+        } else {
+            customCapabilitiesFilters.forEach(customFilter => {
+                if (customFilter instanceof Promise) {
+                    promises.push(customFilter(rep));
+                } else {
+                    promises.push(new Promise(resolve => resolve(customFilter(rep))));
+                }
+            });
+        }
 
         return Promise.all(promises)
     }

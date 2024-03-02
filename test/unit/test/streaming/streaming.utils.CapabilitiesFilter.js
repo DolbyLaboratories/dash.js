@@ -4,7 +4,7 @@ import CapabilitiesMock from '../../mocks/CapabilitiesMock.js';
 import Settings from '../../../../src/core/Settings.js';
 import CustomParametersModel from '../../../../src/streaming/models/CustomParametersModel.js';
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 let adapterMock;
 let capabilitiesFilter;
@@ -153,11 +153,11 @@ describe('CapabilitiesFilter', function () {
         describe('filter EssentialProperty values', function () {
 
             beforeEach(function () {
-                settings.update({ streaming: { capabilities: { filterUnsupportedEssentialProperties: true }} });
+                settings.update({ streaming: { capabilities: { filterUnsupportedEssentialProperties: true } } });
             });
 
             it('should not filter AdaptationSets and Representations if filterUnsupportedEssentialProperties is disabled', function (done) {
-                settings.update({ streaming: { capabilities: {filterUnsupportedEssentialProperties: false }} });
+                settings.update({ streaming: { capabilities: { filterUnsupportedEssentialProperties: false } } });
                 const manifest = {
                     Period: [{
                         AdaptationSet: [{
@@ -353,33 +353,38 @@ describe('CapabilitiesFilter', function () {
         });
 
         describe('custom filters', function () {
-
-            it('should use provided custom filters', function (done) {
-                const manifest = {
-                    Period: [{
-                        AdaptationSet: [{
-                            mimeType: 'video/mp4',
-                            Representation: [
-                                {
-                                    mimeType: 'video/mp4',
-                                    height: 1080
-                                },
-                                {
-                                    mimeType: 'video/mp4',
-                                    height: 720
-                                },
-                                {
-                                    mimeType: 'video/mp4',
-                                    height: 480
-                                }
-                            ]
-                        }]
+            const manifest = {
+                Period: [{
+                    AdaptationSet: [{
+                        mimeType: 'video/mp4',
+                        Representation: [
+                            {
+                                mimeType: 'video/mp4',
+                                height: 1080
+                            },
+                            {
+                                mimeType: 'video/mp4',
+                                height: 720
+                            },
+                            {
+                                mimeType: 'video/mp4',
+                                height: 480
+                            }
+                        ]
                     }]
-                };
+                }]
+            };
 
-                customParametersModel.registerCustomCapabilitiesFilter(function (representation) {
-                    return representation.height <= 720;
-                });
+            const repHeightFilterFn = function(representation) {
+                return representation.height >= 720;
+            }
+            const repHeightFilterAsync = async function (representation) {
+                return representation.height <= 720;
+            }
+            
+            it('should use provided custom filter function', function (done) {
+
+                customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn);
 
                 capabilitiesFilter.filterUnsupportedFeatures(manifest)
                     .then(() => {
@@ -390,11 +395,39 @@ describe('CapabilitiesFilter', function () {
                     .catch((e) => {
                         done(e);
                     });
+            });
 
+            it('should use provided custom filter Promise', function (done) {
 
+                customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterAsync);
+
+                capabilitiesFilter.filterUnsupportedFeatures(manifest)
+                    .then(() => {
+                        expect(manifest.Period[0].AdaptationSet).to.have.lengthOf(1);
+                        expect(manifest.Period[0].AdaptationSet[0].Representation).to.have.lengthOf(2);
+                        done();
+                    })
+                    .catch((e) => {
+                        done(e);
+                    });
+            });
+
+            it('should use provided custom filter - Function + Promise', function (done) {
+
+                customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterAsync);
+                customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn);
+
+                capabilitiesFilter.filterUnsupportedFeatures(manifest)
+                    .then(() => {
+                        expect(manifest.Period[0].AdaptationSet).to.have.lengthOf(1);
+                        expect(manifest.Period[0].AdaptationSet[0].Representation).to.have.lengthOf(1);
+                        done();
+                    })
+                    .catch((e) => {
+                        done(e);
+                    });
             });
         });
-
 
     });
 });
