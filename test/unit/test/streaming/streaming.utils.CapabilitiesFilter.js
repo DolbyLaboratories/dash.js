@@ -353,35 +353,39 @@ describe('CapabilitiesFilter', function () {
         });
 
         describe('custom filters', function () {
-            const manifest = {
-                Period: [{
-                    AdaptationSet: [{
-                        mimeType: 'video/mp4',
-                        Representation: [
-                            {
-                                mimeType: 'video/mp4',
-                                height: 1080
-                            },
-                            {
-                                mimeType: 'video/mp4',
-                                height: 720
-                            },
-                            {
-                                mimeType: 'video/mp4',
-                                height: 480
-                            }
-                        ]
-                    }]
-                }]
+            let manifest = {};
+
+            const repHeightFilterFn = function (representation) {
+                return representation.height >= 720;
+            };
+            const repHeightFilterAsync = function (representation) {
+                return new Promise(resolve => { resolve(representation.height <= 720) });
             };
 
-            const repHeightFilterFn = function(representation) {
-                return representation.height >= 720;
-            }
-            const repHeightFilterAsync = async function (representation) {
-                return representation.height <= 720;
-            }
-            
+            beforeEach(function () {
+                manifest = {
+                    Period: [{
+                        AdaptationSet: [{
+                            mimeType: 'video/mp4',
+                            Representation: [
+                                {
+                                    mimeType: 'video/mp4',
+                                    height: 1080
+                                },
+                                {
+                                    mimeType: 'video/mp4',
+                                    height: 720
+                                },
+                                {
+                                    mimeType: 'video/mp4',
+                                    height: 480
+                                }
+                            ]
+                        }]
+                    }]
+                };
+            });
+
             it('should use provided custom filter function', function (done) {
 
                 customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn);
