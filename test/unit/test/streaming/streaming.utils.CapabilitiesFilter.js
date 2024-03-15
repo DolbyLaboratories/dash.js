@@ -386,7 +386,7 @@ describe('CapabilitiesFilter', function () {
                 };
             });
 
-            it('should use provided custom filter function', function (done) {
+            it('should use provided custom boolean filter', function (done) {
 
                 customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn);
 
@@ -401,7 +401,7 @@ describe('CapabilitiesFilter', function () {
                     });
             });
 
-            it('should use provided custom filter Promise', function (done) {
+            it('should use provided custom promise filter', function (done) {
 
                 customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterAsync);
 
@@ -416,7 +416,7 @@ describe('CapabilitiesFilter', function () {
                     });
             });
 
-            it('should use provided custom filter - Function + Promise', function (done) {
+            it('should use provided custom filters - boolean + promise', function (done) {
 
                 customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterAsync);
                 customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn);

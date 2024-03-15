@@ -280,7 +280,11 @@ function CapabilitiesFilter() {
             Promise.all(promises)
                 .then((supported) => {
                     as.Representation = as.Representation.filter((rep, i) => {
-                        return supported[i].every( (s)=>{return s});
+                        let isReprSupported = supported[i].every( (s)=>{return s});
+                        if (!isReprSupported) {
+                            logger.debug(`Representation has been removed because of unsupported CustomFilter`);
+                        }
+                        return isReprSupported;
                     });
                     resolve();
                 })
