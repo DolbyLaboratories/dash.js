@@ -282,13 +282,15 @@ function CapabilitiesFilter() {
                     as.Representation = as.Representation.filter((rep, i) => {
                         let isReprSupported = supported[i].every( (s)=>{return s});
                         if (!isReprSupported) {
-                            logger.debug(`Representation has been removed because of unsupported CustomFilter`);
+                            logger.info('[Stream] Representation '+rep.id+' has been removed because of unsupported CustomFilter');
                         }
                         return isReprSupported;
                     });
+                    logger.debug('[Stream] all promises resolved in CustomFilter');
                     resolve();
                 })
-                .catch(() => {
+                .catch((err) => {
+                    logger.warn('[Stream] at least one promise rejected in CustomFilter with error: ',err);
                     resolve();
                 });
         });
