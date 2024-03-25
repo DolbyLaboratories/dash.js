@@ -361,6 +361,9 @@ describe('CapabilitiesFilter', function () {
             const repHeightFilterAsync = function (representation) {
                 return new Promise(resolve => { resolve(representation.height <= 720) });
             };
+            const customFilterRejects = function () {
+                return Promise.reject('always rejected');
+            }
 
             beforeEach(function () {
                 manifest = {
@@ -384,6 +387,19 @@ describe('CapabilitiesFilter', function () {
                         }]
                     }]
                 };
+            });
+
+            it('should keep manifest unchanged when no custom filter is provided', function (done) {
+
+                capabilitiesFilter.filterUnsupportedFeatures(manifest)
+                    .then(() => {
+                        expect(manifest.Period[0].AdaptationSet).to.have.lengthOf(1);
+                        expect(manifest.Period[0].AdaptationSet[0].Representation).to.have.lengthOf(3);
+                        done();
+                    })
+                    .catch((e) => {
+                        done(e);
+                    });
             });
 
             it('should use provided custom boolean filter', function (done) {
@@ -425,6 +441,24 @@ describe('CapabilitiesFilter', function () {
                     .then(() => {
                         expect(manifest.Period[0].AdaptationSet).to.have.lengthOf(1);
                         expect(manifest.Period[0].AdaptationSet[0].Representation).to.have.lengthOf(1);
+                        done();
+                    })
+                    .catch((e) => {
+                        done(e);
+                    });
+            });
+            
+            it('should handle rejected promises', function (done) {
+                
+                customParametersModel.registerCustomCapabilitiesFilter(repHeightFilterFn); // this function resolves
+                customParametersModel.registerCustomCapabilitiesFilter(customFilterRejects); // this function rejects
+
+                capabilitiesFilter.filterUnsupportedFeatures(manifest)
+                    .then(() => {
+                        expect(manifest.Period[0].AdaptationSet).to.have.lengthOf(1);
+                        // when one promise is rejected, all filters are not applied
+                        expect(manifest.Period[0].AdaptationSet[0].Representation).to.have.lengthOf(3);
+
                         done();
                     })
                     .catch((e) => {

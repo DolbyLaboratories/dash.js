@@ -45,7 +45,7 @@
                         console.log('[sample] Representation '+representation.id+' - Config : %o', cfg);
 
                         const ok = await navigator.mediaCapabilities.decodingInfo(cfg).then((result) => result.supported);
-                        console.log('[sample] MediaCapabilities said ' + ok + ' for Representatiob-id: ' + representation.id + ' and config: ' + JSON.stringify(config, null, 4));
+                        console.log('[sample] MediaCapabilities said ' + ok + ' for Representatiob-id: ' + representation.id + ' and config: ' + JSON.stringify(cfg, null, 4));
                         return ok;
                     } else {
                         console.log('[sample] Representation '+representation.id+' - Unrecognized mimeType : ' + representation.mimeType);
