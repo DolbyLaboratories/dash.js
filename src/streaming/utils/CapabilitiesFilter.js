@@ -304,11 +304,7 @@ function CapabilitiesFilter() {
             promises.push(Promise.resolve(true));
         } else {
             customCapabilitiesFilters.forEach(customFilter => {
-                if (customFilter instanceof Promise) {
-                    promises.push(customFilter(rep));
-                } else {
-                    promises.push(new Promise(resolve => resolve(customFilter(rep))));
-                }
+                promises.push(new Promise(resolve => resolve(customFilter(rep))));
             });
         }
 
