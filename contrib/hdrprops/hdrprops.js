@@ -165,20 +165,21 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
     //************************************************************************************
 
     return {
-
         initialize: function () {
             logger = player.getDebug().getLogger(player);
 
-            // register property schemeIdUris handled by this plugin
-            let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
-            props = removeProperties(props);
-            props.push(...EssentialProperties.map(p => { return { schemeIdUri: p } }));
-            player.updateSettings({ streaming: { capabilities: { supportedEssentialProperties: props } } })
+            if (navigator.mediaCapabilities) {
+                // register property schemeIdUris handled by this plugin
+                let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
+                props = removeProperties(props);
+                props.push(...EssentialProperties.map(p => { return { schemeIdUri: p } }));
+                player.updateSettings({ streaming: { capabilities: { supportedEssentialProperties: props } } })
 
-            // register capability filter
-            player.registerCustomCapabilitiesFilter(filterCapabilities);
-
-            logger.info('[HdrPlugIn] DONE');
+                // register capability filter
+                player.registerCustomCapabilitiesFilter(filterCapabilities);
+            } else {
+                logger.warn('[HdrPlugIn] MediaCapabilities-API not found - doing nothing.');
+            }
         }
     };
 };
