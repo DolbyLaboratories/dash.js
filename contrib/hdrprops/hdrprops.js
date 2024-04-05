@@ -83,15 +83,80 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
     ];
 
     // remove optioanlly existing properties to avoid duplicates
-    var removeProperties =  function(props) {
-        return props.filter(p=>{
-            return !(p.schemeIdUri && (EssentialProperties.includes(p.schemeIdUri) ));
+    var removeProperties = function (props) {
+        return props.filter(p => {
+            return !(p.schemeIdUri && (EssentialProperties.includes(p.schemeIdUri)));
         });
     };
 
-    var filterCapabilities = async function(representation) {
-        // console.log("[HdrPlugIn] representation: %o",representation);
-        return true;
+    var filterCapabilities = async function (representation) {
+        const mimeType = `${representation.mimeType};codecs="${representation.codecs}"`
+        const isVideo = mimeType.startsWith('video')
+        let supported = true;
+
+        if (isVideo) {
+            const config = {
+                type: 'media-source',
+                video: {
+                    contentType: mimeType,
+                    framerate: representation.frameRate,
+                    width: representation.width,
+                    height: representation.height,
+                    bitrate: representation.bandwidth,
+                    colorGammut: 'srgb',
+                    transferFunction: 'srgb'
+                }
+            }
+
+            // const essProp = representation.essentialProperties.filter(p=>{return p;});
+
+            for (const prop of representation.essentialProperties || []) {
+                if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [1].includes(prop.value))
+                    config.video.colorGamut = 'srgb'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [11, 12].includes(prop.value))
+                    config.video.colorGamut = 'p3'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [9].includes(prop.value))
+                    config.video.colorGamut = 'rec2020'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries')
+                    supported = false;
+
+                if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [1, 14, 15].includes(prop.value))
+                    config.video.transferFunction = 'srgb'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [16].includes(prop.value))
+                    config.video.transferFunction = 'pq'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [18].includes(prop.value))
+                    config.video.transferFunction = 'hlg'
+                else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics')
+                    supported = false;
+
+                if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'ST2094-10')
+                    config.video.hdrMetadataType = 'smpteSt2094-10'
+                else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'SL-HDR2')
+                    config.video.hdrMetadataType = 'slhdr2'     // XXXGJM TODO
+                else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'ST2094-40')
+                    config.video.hdrMetadataType = 'smpteSt2094-40'
+                else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi')
+                    supported = false;
+
+                /*
+                // for the moment, just ensure that ColourPrimaries and MatrixCoefficients are consistent
+                if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:MatrixCoefficients') {
+                    if (prop.value != essentialProperties.filter(v => v.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries').value)
+                        return false
+                }
+                */
+
+            }
+
+            if (supported) {
+                console.log("[HdrPlugIn] representation: %o", representation);
+                console.log("[HdrPlugIn] config: %o", config);
+                supported = await navigator.mediaCapabilities.decodingInfo(config).then((result) => result.supported);
+                console.log(`[HdrPlugIn] MediaCapabilities said ${supported} for ${JSON.stringify(config, null, 4)}`)
+            }
+        };
+
+        return supported;
     };
 
 
@@ -107,7 +172,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
             // register property schemeIdUris handled by this plugin
             let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
             props = removeProperties(props);
-            props.push(...EssentialProperties.map(p=>{return {schemeIdUri: p} }));
+            props.push(...EssentialProperties.map(p => { return { schemeIdUri: p } }));
             player.updateSettings({ streaming: { capabilities: { supportedEssentialProperties: props } } })
 
             // register capability filter
