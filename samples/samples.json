@@ -105,6 +105,20 @@
                     "Video",
                     "Audio"
                 ]
+            },
+            {
+                "title": "HDR Properties PlugIn",
+                "description": "This example shows how to add the HDR Properties signaling PlugIn with dash.js player.",
+                "href": "getting-started/hdrCapabilityPlugIn.html",
+                "width": "25rem",
+                "image": "lib/img/tos-2.jpg",
+                "labels": [
+                    "VoD",
+                    "Video",
+                    "HDR",
+                    "Audio",
+                    "Controlbar"
+                ]
             }
         ]
     },
