@@ -107,7 +107,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
             // register property schemeIdUris handled by this plugin
             let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
             props = removeProperties(props);
-            props.push(...EssentialProperties);
+            props.push(...EssentialProperties.map(p=>{return {schemeIdUri: p} }));
             player.updateSettings({ streaming: { capabilities: { supportedEssentialProperties: props } } })
 
             // register capability filter
