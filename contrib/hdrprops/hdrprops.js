@@ -32,37 +32,88 @@
 /**
  * @module HdrPropertiesCapabilityFilter
  * @param {object=} dashjsMediaPlayer - dashjs reference
- * @param {boolean=} displayUTCTimeCodes - true if time is displayed in UTC format, false otherwise
  */
 // eslint-disable-next-line no-unused-vars
 var HdrPropsCapFilter = function (dashjsMediaPlayer) {
 
     var player = this.player = dashjsMediaPlayer;
-    var self = this;
     var logger;
+
+    const EssentialProperties = [
+
+        // Video Full Range specifying the scaling and offset values
+        //  applied in association with the Video matrix colour coefficients.
+        // 0 : smpte-range (default)
+        // 1 : full-range
+        'urn:mpeg:mpegB:cicp:VideoFullRangeFlag',
+
+        // Indicates that the player has to support the specified matrix
+        // coefficients in order to correctly present any Representation
+        // within the AdaptationSet
+        // 0 = identity
+        // 1 = BT.709
+        // 5 = BT.601 (PAL)
+        // 6 = BT.601 (NTSC)
+        // 9 = BT.2020 (non-constant luma)
+        // 10 = BT.2020 (constant luma)
+        'urn:mpeg:mpegB:cicp:MatrixCoefficients',
+
+        // Indicates that the player has to support the specified colour
+        // primaries in order to correctly present any Representation
+        // within the AdaptationSet.
+        // 1 = BT.709
+        // 5 = BT.601 (PAL)
+        // 6 = BT.601 (NTSC)
+        // 9 = BT.2020
+        // 11 = SMPTE 431-2 (DCI-P3 theatre)
+        // 12 = SMPTE 431-1 (DCI-P3 D65 display)
+        'urn:mpeg:mpegB:cicp:ColourPrimaries',
+
+        // Indicates that the player has to support the specified transfer
+        // characteristics in order to correctly present any
+        // Representation within the AdaptationSet.
+        // 1 = BT.709 (gamma)
+        // 6 = BT.601 (PAL or NTSC)
+        // 8 = linear
+        // 14 = BT.2020 OETF (10-bit gamma)
+        // 15 = BT.2020 OETF (12-bit gamma)
+        // 16 = BT.2100 / SMPTE.2084 PQ
+        // 18 = BT.2100 HLG
+        'urn:mpeg:mpegB:cicp:TransferCharacteristics',
+    ];
+
+    // remove optioanlly existing properties to avoid duplicates
+    var removeProperties =  function(props) {
+        return props.filter(p=>{
+            return !(p.schemeIdUri && (EssentialProperties.includes(p.schemeIdUri) ));
+        });
+    };
+
+    var filterCapabilities = async function(representation) {
+        // console.log("[HdrPlugIn] representation: %o",representation);
+        return true;
+    };
+
 
     //************************************************************************************
     // PUBLIC API
     //************************************************************************************
 
     return {
-        filterCapabilities: async function(representation) {
-            console.log("[HdrPlugIn] representation: %o",representation);
-            return true;
-        },
 
-        initialize: function (suffix) {
-            this.logger = player.getDebug().getLogger(player);
+        initialize: function () {
+            logger = player.getDebug().getLogger(player);
 
             // register property schemeIdUris handled by this plugin
             let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
-            props.push(...[{ schemeIdUri: 'tag:dashif.org:scheme:value:test' }]);
+            props = removeProperties(props);
+            props.push(...EssentialProperties);
             player.updateSettings({ streaming: { capabilities: { supportedEssentialProperties: props } } })
 
             // register capability filter
-            player.registerCustomCapabilitiesFilter(this.filterCapabilities);
+            player.registerCustomCapabilitiesFilter(filterCapabilities);
 
-            this.logger.info('[HdrPlugIn] DONE');
+            logger.info('[HdrPlugIn] DONE');
         }
     };
 };
