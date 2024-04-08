@@ -103,14 +103,14 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                     width: representation.width,
                     height: representation.height,
                     bitrate: representation.bandwidth,
-                    colorGammut: 'srgb',
+                    colorGamut: 'srgb',
                     transferFunction: 'srgb'
                 }
             }
 
-            // const essProp = representation.essentialProperties.filter(p=>{return p;});
+            // const essProp = representation.EssentialProperty.filter(p=>{return p;});
 
-            for (const prop of representation.essentialProperties || []) {
+            for (const prop of representation.EssentialProperty || []) {
                 if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [1].includes(prop.value))
                     config.video.colorGamut = 'srgb'
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [11, 12].includes(prop.value))
