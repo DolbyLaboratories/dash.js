@@ -2,7 +2,12 @@ import Capabilities from '../../../../src/streaming/utils/Capabilities.js';
 import Settings from '../../../../src/core/Settings.js';
 import DescriptorType from '../../../../src/dash/vo/DescriptorType.js';
 
+<<<<<<< HEAD:test/unit/test/streaming/streaming.utils.Capabilities.js
 import { expect } from 'chai';
+=======
+import {expect} from 'chai';
+import DescriptorType from '../../src/dash/vo/DescriptorType.js';
+>>>>>>> fb0798de (remove white spaces):test/unit/streaming.utils.Capabilities.js
 
 let settings;
 let capabilities;

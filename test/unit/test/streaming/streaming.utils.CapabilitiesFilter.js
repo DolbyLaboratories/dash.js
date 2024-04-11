@@ -4,7 +4,7 @@ import CapabilitiesMock from '../../mocks/CapabilitiesMock.js';
 import Settings from '../../../../src/core/Settings.js';
 import CustomParametersModel from '../../../../src/streaming/models/CustomParametersModel.js';
 
-import { expect } from 'chai';
+import {expect} from 'chai';
 
 let adapterMock;
 let capabilitiesFilter;
