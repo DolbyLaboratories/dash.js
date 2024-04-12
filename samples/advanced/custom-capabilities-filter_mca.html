@@ -26,7 +26,11 @@
                 url = "https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd";
 
             var filterCapabilities = async function (representation) {
-                /* Filter representations based on certain attributes like the resolution. Return false to filter specific representation */
+                /* 
+                 * This example only illustrates how calls to async functions such as
+                 * MediaCapabilitiesAPI can be used with dash.js' CustomCapabilitiesFilter.
+                 * Note that dash.js already performs basic capability checks internally.
+                 */
                 if (navigator.mediaCapabilities) {
                     if (representation.mimeType === "video/mp4") {
                         const mimeType = `${representation.mimeType};codecs="${representation.codecs}"`
@@ -48,11 +52,11 @@
                         console.log('[sample] MediaCapabilities said ' + ok + ' for Representatiob-id: ' + representation.id + ' and config: ' + JSON.stringify(cfg, null, 4));
                         return ok;
                     } else {
-                        console.log('[sample] Representation '+representation.id+' - Unrecognized mimeType : ' + representation.mimeType);
+                        console.log('[sample] Representation '+representation.id+' - mimeType ' + representation.mimeType + ' not subject to filtering.');
                         return true;
                     }
                 }
-                console.log('[sample] MediaCapabilities API not detected');
+                console.log('[sample] MediaCapabilities API not detected; no filtering applied.');
                 return true;
             }
 
