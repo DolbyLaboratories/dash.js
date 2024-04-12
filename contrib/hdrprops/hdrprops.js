@@ -82,7 +82,8 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
         'urn:mpeg:mpegB:cicp:TransferCharacteristics',
     ];
 
-    // remove optioanlly existing properties to avoid duplicates
+    // when an EssentialProperty is already registered with dash.js but get handled by this plugin,
+    // the existing property needs to get removed to avoid duplicated entries
     var removeProperties = function (props) {
         return props.filter(p => {
             return !(p.schemeIdUri && (EssentialProperties.includes(p.schemeIdUri)));
@@ -108,8 +109,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                 }
             }
 
-            // const essProp = representation.EssentialProperty.filter(p=>{return p;});
-
+            // translate ColourPrimaries signaling into capability queries
             for (const prop of representation.EssentialProperty || []) {
                 if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [1].includes(prop.value))
                     config.video.colorGamut = 'srgb'
@@ -120,6 +120,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries')
                     supported = false;
 
+                // translate TransferCharacteristics signaling into capability queries
                 if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [1, 14, 15].includes(prop.value))
                     config.video.transferFunction = 'srgb'
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [16].includes(prop.value))
@@ -129,6 +130,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics')
                     supported = false;
 
+                // translate hdrMetadataType signaling into capability queries
                 if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'ST2094-10')
                     config.video.hdrMetadataType = 'smpteSt2094-10'
                 else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'SL-HDR2')
