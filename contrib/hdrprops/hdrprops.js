@@ -139,15 +139,6 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                     config.video.hdrMetadataType = 'smpteSt2094-40'
                 else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi')
                     supported = false;
-
-                /*
-                // for the moment, just ensure that ColourPrimaries and MatrixCoefficients are consistent
-                if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:MatrixCoefficients') {
-                    if (prop.value != essentialProperties.filter(v => v.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries').value)
-                        return false
-                }
-                */
-
             }
 
             if (supported) {
