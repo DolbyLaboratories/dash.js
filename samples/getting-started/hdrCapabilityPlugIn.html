@@ -26,6 +26,41 @@
         }
     </style>
 
+    <script>
+        function printInfosToPage() {
+            let elMpdTrack = document.getElementById('ulMpdTrackList');
+            if (elMpdTrack) {
+                let adapter = player.getDashAdapter();
+                let mpd = adapter.getMpd();
+
+                let tracks = mpd.manifest.Period[0].AdaptationSet.filter(t => t.mimeType === 'video/mp4');
+                console.log("[HdrPlugIn] video-tracks: %o", tracks);
+
+                tracks.forEach(t => {
+                    let li = document.createElement('li');
+                    li.innerHTML = '<pre>' + t.Label[0].__text + '</pre>';
+                    elMpdTrack.appendChild(li);
+                })
+            }
+
+            elSupportedTrack = document.getElementById('ulSupportedTrackList');
+            if (elSupportedTrack) {
+                let tracks = player.getTracksFor('video');
+                tracks.forEach(t => {
+                    let li = document.createElement('li');
+                    li.innerHTML = '<pre>' + t.labels[0].text + '</pre>';
+                    elSupportedTrack.appendChild(li);
+                })
+            };
+
+            elCurrTrack = document.getElementById('elCurrTrack');
+            if (elCurrTrack) {
+                let currTrack = player.getCurrentTrackFor('video');
+                elCurrTrack.innerHTML = '<pre>' + currTrack.labels[0].text + '</pre>';
+            }
+        }
+    </script>
+
     <script class="code">
         function init() {
             var url = 'https://webapi.streaming.dolby.com/v0_9/sources/media/v01/dash/hdr_essentialProps.mpd';
@@ -42,45 +77,10 @@
             var hdrProps = new HdrPropsCapFilter(player);
             hdrProps.initialize();
 
-            let props = player.getSettings().streaming.capabilities.supportedEssentialProperties;
-            console.log("[HdrPlugIn] PROPERTIES: %o", props);
-
             var controlbar = new ControlBar(player);
             controlbar.initialize();
 
-            player.on(dashjs.MediaPlayer.events['STREAM_INITIALIZED'], function () {
-                let elMpdTrack = document.getElementById('ulMpdTrackList');
-                if (elMpdTrack) {
-                    let adapter = player.getDashAdapter();
-                    let mpd = adapter.getMpd();
-                    // let mpd = (player.getDashAdapter()).getMpd();
-                    
-                    let tracks = mpd.manifest.Period[0].AdaptationSet.filter(t=>t.mimeType==='video/mp4');
-                    console.log("[HdrPlugIn] video-tracks: %o", tracks);
-                    
-                    tracks.forEach(t=>{
-                        let li = document.createElement('li');
-                        li.innerHTML = '<pre>'+t.Label[0].__text+'</pre>';
-                        elMpdTrack.appendChild(li);
-                    })
-                }
-
-                elSupportedTrack = document.getElementById('ulSupportedTrackList');
-                if (elSupportedTrack) {
-                    let tracks = player.getTracksFor('video');
-                    tracks.forEach(t=>{
-                        let li = document.createElement('li');
-                        li.innerHTML = '<pre>'+t.labels[0].text+'</pre>';
-                        elSupportedTrack.appendChild(li);
-                    });
-                };
-
-                elCurrTrack = document.getElementById('elCurrTrack');
-                if (elCurrTrack) {
-                    let currTrack = player.getCurrentTrackFor('video');
-                    elCurrTrack.innerHTML = '<pre>'+currTrack.labels[0].text+'</pre>';
-                }
-            });
+            player.on(dashjs.MediaPlayer.events['STREAM_INITIALIZED'], printInfosToPage);
 
             player.play();
         }
@@ -143,7 +143,8 @@
             <div class="row">
                 <div class="h-100 p-5 border rounded-3">
                     <h3>Get video streams from Manifest</h3>
-                    <label for="mediaSettings">retured label of <code>getStreamsFromManifest()</code>, filtered for video:</label>
+                    <label for="mediaSettings">retured label of <code>getStreamsFromManifest()</code>, filtered for
+                        video:</label>
                     <ul id="ulMpdTrackList"></ul>
                     <p>This appears to show the video AdaptationSets after Capability filtering.</p>
 
