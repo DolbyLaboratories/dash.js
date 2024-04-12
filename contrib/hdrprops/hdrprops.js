@@ -109,14 +109,19 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                 }
             }
 
-            // translate ColourPrimaries signaling into capability queries
             for (const prop of representation.EssentialProperty || []) {
+                
+                // note: MCA does not reflect a parameter related to 'urn:mpeg:mpegB:cicp:VideoFullRangeFlag'
+                
+                // translate ColourPrimaries signaling into capability queries
                 if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [1].includes(prop.value))
                     config.video.colorGamut = 'srgb'
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [11, 12].includes(prop.value))
                     config.video.colorGamut = 'p3'
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [9].includes(prop.value))
                     config.video.colorGamut = 'rec2020'
+                // else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries' && [5, 6].includes(prop.value))
+                //     delete config.video.colorGamut
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:ColourPrimaries')
                     supported = false;
 
@@ -127,6 +132,8 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                     config.video.transferFunction = 'pq'
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [18].includes(prop.value))
                     config.video.transferFunction = 'hlg'
+                // else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics' && [6].includes(prop.value))
+                //     delete config.video.colorGamut
                 else if (prop.schemeIdUri == 'urn:mpeg:mpegB:cicp:TransferCharacteristics')
                     supported = false;
 
