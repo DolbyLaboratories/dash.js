@@ -141,7 +141,7 @@ var HdrPropsCapFilter = function (dashjsMediaPlayer) {
                 if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'ST2094-10')
                     config.video.hdrMetadataType = 'smpteSt2094-10'
                 else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'SL-HDR2')
-                    config.video.hdrMetadataType = 'slhdr2'     // XXXGJM TODO
+                    config.video.hdrMetadataType = 'slhdr2'     // TODO: this is not specified by W3C
                 else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi' && prop.value == 'ST2094-40')
                     config.video.hdrMetadataType = 'smpteSt2094-40'
                 else if (prop.schemeIdUri == 'urn:dvb:dash:hdr-dmi')
